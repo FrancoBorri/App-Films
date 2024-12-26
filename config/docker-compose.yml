@@ -1,0 +1,38 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    container_name: db_postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=prueba_postgres
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - django_network
+
+  django:
+    build:
+      context: ./Django-image
+    container_name: django_app
+    volumes:
+      - ./src/django:/usr/src/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://admin:admin@db:5432/prueba_postgres
+    networks:
+      - django_network
+
+volumes:
+  pgdata:
+
+networks:
+  django_network:
+    driver: bridge
